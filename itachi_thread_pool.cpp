@@ -7,7 +7,6 @@
 #include <list>
 
 std::mutex m;
-std::condition_variable cv;
 class Task{
 public:
     Task(int taskID) {
@@ -30,7 +29,7 @@ public:
         std::unique_lock<std::mutex> lk(_mux);
         _task_list.push_back(spTask);
         lk.unlock();
-        cv.notify_one();
+        _cv.notify_one();
     }
     
     void destory_thread_pool() {
@@ -48,12 +47,13 @@ public:
                 if (!_is_running) {
                     break;
                 }
-                cv.wait(ul);
+                _cv.wait(ul);
             }
             if(!_is_running) {
                 break;
             }
             spTask = _task_list.back();
+            _task_list.pop_back();
             ul.unlock();
             if (spTask == nullptr) {
                 continue;
@@ -66,20 +66,19 @@ public:
         if (threadNum < 5) {
             threadNum = 5;
         }
+        _is_running = true;
         for (int i = 0; i< threadNum; ++i) {
             std::shared_ptr<std::thread> thread_ptr;
             thread_ptr.reset(new std::thread(&Itachi_Thread_Pool::threadFunc, this));
             _thread_vec.push_back(thread_ptr);
         }
-        _is_running = true;
     }
     void stop() {
         _is_running = false;
-        
+        _cv.notify_all();
         for (auto& thread_item : _thread_vec) {
             thread_item->join();
         }
-        _cv.notify_all();
     }
 private:
     std::vector<std::shared_ptr<std::thread>> _thread_vec;
@@ -99,7 +98,7 @@ int main() {
         thp.add_task(task);
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     thp.stop();
     return 0;
 }
