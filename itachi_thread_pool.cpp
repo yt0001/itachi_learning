@@ -68,7 +68,7 @@ public:
         }
         for (int i = 0; i< threadNum; ++i) {
             std::shared_ptr<std::thread> thread_ptr;
-            thread_ptr.reset(new std::thread(&Itachi_Thread_Pool::threadFunc));
+            thread_ptr.reset(new std::thread(&Itachi_Thread_Pool::threadFunc, this));
             _thread_vec.push_back(thread_ptr);
         }
         _is_running = true;
