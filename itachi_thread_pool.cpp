@@ -13,8 +13,7 @@ public:
         this->taskID = taskID;
     }
     void doTask() {
-        std::cout << "do task, taskID:" << taskID;
-        std::cout << ", threadID:" << std::this_thread::get_id() << std::endl;
+        std::cout << "do task, taskID:" << taskID << ", threadID:" << std::this_thread::get_id() << std::endl;
     }
 private:
     int taskID;
