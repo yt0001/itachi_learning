@@ -13,7 +13,8 @@ public:
         this->taskID = taskID;
     }
     void doTask() {
-        std::cout << "do task, taskID:" << taskID << ", threadID:" << std::this_thread::get_id() << std::endl;
+        std::cout << "do task, taskID:" << taskID;
+        std::cout << ", threadID:" << std::this_thread::get_id() << std::endl;
     }
 private:
     int taskID;
@@ -54,12 +55,12 @@ public:
             }
             spTask = _task_list.back();
             _task_list.pop_back();
-            ul.unlock();
             if (spTask == nullptr) {
                 continue;
             }
             spTask->doTask();
             spTask.reset();
+            ul.unlock();
         }
     }
     void init(int threadNum = 5) {
